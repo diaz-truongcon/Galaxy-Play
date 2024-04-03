@@ -70,12 +70,12 @@ function Movie(props) {
             await addDoc(collection(db, 'Movie'), {
                 nameMovie: values.nameMovie,
                 imgMovie: movieImgURL,
-                catergory: Categories.name,
+                catergoryMovie: Categories.name,
                 durationMovie: values.durationMovie,
                 vipMovie: values.vipMovie,
-                describe: values.describeMovie,
-                protagonist: values.protagonistMovie,
-                link: values.linkfilmMovie,
+                describeMovie: values.describeMovie,
+                protagonistMovie: values.protagonistMovie,
+                linkMovie: values.linkMovie,
             });
             setUpdate(!update);
             message.success('Movie added successfully!');
@@ -86,86 +86,124 @@ function Movie(props) {
         }
     }
 
-        return (
-            <>
-                <Row gutter={16} align="middle">
-                    <Col xs={24} md={6} xl={6} style={{ marginTop: "1em" }}>
-                        <h3>List Movies</h3>
-                    </Col>
-                    <Col xs={24} md={12} xl={12} style={{ marginTop: "1em" }}>
-                        <Input.Search
-                            placeholder="Search movie"
-                            style={{ width: '100%' }}
-                            prefix={<SearchOutlined />}
-                        />
-                    </Col>
-                    <Col xs={24} md={6} xl={6} style={{ marginTop: "1em" }}>
-                        <Button type="primary" 
-                        // onClick={showModal} 
-                        icon={<PlusOutlined />} style={{ width: '100%' }}>
-                            Add Movie
-                        </Button>
-                    </Col>
-                </Row>
-                <Table dataSource={movie} pagination={{ pageSize: 5 }} style={{ marginTop: "1rem" }} className="responsive-table">
-                    <Column title="#" render={(text, record, index) => index + 1} key="index" />
-                    <Column
-                        title="Img Movie"
-                        key="imgMovie"
-                        render={(text, record) => (
-                            <Image width={50} src={record.img} />
-                        )}
+    return (
+        <>
+            <Row gutter={16} align="middle">
+                <Col xs={24} md={6} xl={6} style={{ marginTop: "1em" }}>
+                    <h3>List Movies</h3>
+                </Col>
+                <Col xs={24} md={12} xl={12} style={{ marginTop: "1em" }}>
+                    <Input.Search
+                        placeholder="Search movie"
+                        style={{ width: '100%' }}
+                        prefix={<SearchOutlined />}
                     />
-                    <Column title="Name Movie" dataIndex="Name" key="nameMovie" />
-                    <Column title="Category" dataIndex="Category" key="nameMovie" />
-                    <Column title="Duration" dataIndex="Duration" key="durationMovie" />
-                    <Column title="VIP" dataIndex="VIP" key="vipMovie" />
-                    <Column title="Describe" dataIndex="Describe" key="describeMovie" />
-                    <Column title="Protagonist" dataIndex="Protagonis" key="protagonistMovie" />
-                    <Column title="Link Film" dataIndex="Link" key="linkMovie" />
-                    <Column
-                        title="Action"
-                        key="action"
-                        render={(text, record) => (
-                            <Space size="middle">
-                                <Button type="primary" ><EditOutlined /></Button>
-                                <Button style={{ backgroundColor: '#ff4d4f', borderColor: '#ff4d4f', color: "white" }} ><DeleteOutlined /></Button>
-                            </Space>
-                        )}
-                    />
-                </Table>
-                <Modal
-                    title="Add Movie"
-                    visible={visible}
-                    onOk={handleOk}
-                    onCancel={handleCancel}
-                    onClick={showModal}
-                >
-                    <Form form={form} layout="vertical">
-                        <Form.Item
-                            label="Name Movie"
-                            name="nameMovie"
-                            rules={[{ required: true, message: 'Please enter the name of the film!' }]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            label="Image Moive"
-                            name="imgMoive"
-                            rules={[{ required: true, message: 'Please upload an image for the film!' }]}
-                        >
-                            <Upload {...uploadProps}>
-                                <Button icon={<PlusOutlined />}>Upload Image</Button>
-                            </Upload>
-                        </Form.Item>
-                        <Form.Item label="Selected Image">
-                            <Image src={previewImg ? previewImg : 'https://firebasestorage.googleapis.com/v0/b/vam3d-15169.appspot.com/o/logo%2Flogoglx.svg?alt=media&token=496963e3-c862-4a5b-bd84-506ab09352ac'} />
-                        </Form.Item>
-                    </Form>
-                    <Button style={{ border: "none" }} ></Button>
-                </Modal>
-            </>
-        );
-    }
+                </Col>
+                <Col xs={24} md={6} xl={6} style={{ marginTop: "1em" }}>
+                    <Button type="primary" onClick={() => showModal(true)} icon={<PlusOutlined />} style={{ width: '100%' }}>
+                        Add Movie
+                    </Button>
+                </Col>
+            </Row>
+            <Table dataSource={movie} pagination={{ pageSize: 5 }} style={{ marginTop: "1rem" }} className="responsive-table">
+                <Column title="#" render={(text, record, index) => index + 1} key="index" />
+                <Column
+                    title="Img Movie"
+                    key="imgMovie"
+                    render={(text, record) => (
+                        <Image width={50} src={record.img} />
+                    )}
+                />
+                <Column title="Name Movie" dataIndex="Name" key="nameMovie" />
+                <Column title="Category" dataIndex="Category" key="categoryMovie" />
+                <Column title="Duration" dataIndex="Duration" key="durationMovie" />
+                <Column title="VIP" dataIndex="VIP" key="vipMovie" />
+                <Column title="Describe" dataIndex="Describe" key="describeMovie" />
+                <Column title="Protagonist" dataIndex="Protagonis" key="protagonistMovie" />
+                <Column title="Link Film" dataIndex="Link" key="linkMovie" />
+                <Column
+                    title="Action"
+                    key="action"
+                    render={(text, record) => (
+                        <Space size="middle">
+                            <Button type="primary" ><EditOutlined /></Button>
+                            <Button style={{ backgroundColor: '#ff4d4f', borderColor: '#ff4d4f', color: "white" }} ><DeleteOutlined /></Button>
+                        </Space>
+                    )}
+                />
+            </Table>
+            <Modal
+                title="Add Movie"
+                visible={visible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+            >
+                <Form form={form} layout="vertical">
+                    <Form.Item
+                        label="Name Movie"
+                        name="nameMovie"
+                        rules={[{ required: true, message: 'Please enter the name of the film!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        label="Category"
+                        name="categoryMovie"
+                        rules={[{ required: true, message: 'Please choose the category of the film!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        label="Duration"
+                        name="durationMovie"
+                        rules={[{ required: true, message: 'Please enter the duration of the film!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        label="VIP"
+                        name="vipMovie"
+                        rules={[{ required: true, message: 'Please choose the vip of the film!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        label="Describe"
+                        name="describeMovie"
+                        rules={[{ required: true, message: 'Please enter the describe of the film!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        label="Protagonist"
+                        name="protagonistMovie"
+                        rules={[{ required: true, message: 'Please enter the protagonist of the film!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        label="Link Film"
+                        name="linkMovie"
+                        rules={[{ required: true, message: 'Please enter the url of the film!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        label="Image Moive"
+                        name="imgMoive"
+                        rules={[{ required: true, message: 'Please upload an image for the film!' }]}
+                    >
+                        <Upload {...uploadProps}>
+                            <Button icon={<PlusOutlined />}>Upload Image</Button>
+                        </Upload>
+                    </Form.Item>
+                    <Form.Item label="Selected Image">
+                        <Image src={previewImg ? previewImg : 'https://firebasestorage.googleapis.com/v0/b/vam3d-15169.appspot.com/o/logo%2Flogoglx.svg?alt=media&token=496963e3-c862-4a5b-bd84-506ab09352ac'} />
+                    </Form.Item>
+                </Form>
+            </Modal>
+        </>
+    );
+}
 
 export default Movie;
