@@ -138,7 +138,6 @@ function Categories() {
         });
     };
     const handleEdit = async (record) => {
-        console.log(record);
         form.setFieldsValue({
             nameCategory: record.nameCategory,
         })

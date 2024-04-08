@@ -76,7 +76,7 @@ const HomeAdmin = ({currentTheme, setCurrentTheme}) => {
                     <Content style={{ margin: '0 16px' }}>
                         <Breadcrumb style={{ margin: '16px 0' }}>
                             <Breadcrumb.Item>User</Breadcrumb.Item>
-                            <Breadcrumb.Item>Bill</Breadcrumb.Item>
+                            <Breadcrumb.Item>Truong</Breadcrumb.Item>
                         </Breadcrumb>
                         <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
                             <Routes>
@@ -86,7 +86,7 @@ const HomeAdmin = ({currentTheme, setCurrentTheme}) => {
                             </Routes>
                         </div>
                     </Content>
-                    <Footer style={{ textAlign: 'center' }}>Ant Design Admin ©2023 Created by You</Footer>
+                    <Footer style={{ textAlign: 'center' }}>Ant Design Admin ©2023 Created by Xuan Truong</Footer>
                 </Layout>
             </Layout>
         </BrowserRouter>

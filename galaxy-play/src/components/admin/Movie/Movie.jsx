@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from "uuid";
 import Categories from '../Categories/Categories';
 import { vip } from './vip';
 const { Column } = Table;
-const {Option} = Select;
+const { Option } = Select;
 
 function Movie(props) {
 
@@ -29,6 +29,8 @@ function Movie(props) {
     const [update, setUpdate] = useState(false);
     const categoriesCollectionRef = collection(db, "Categories");
     const [categories, setCategories] = useState([]);
+    const [movieEdit, setMovieEdit] = useState(null);
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -62,7 +64,52 @@ function Movie(props) {
         setVisible(false);
         form.resetFields(); // Reset the form fields when the modal is closed
         setPreviewImg(null);
+        setMovieEdit(null);
     };
+    const handleDelete = (record) => {
+        Modal.confirm({
+            title: 'Confirm Delete',
+            content: 'Are you sure you want to delete this movie?',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            async onOk() {
+                try {
+                    const filename = record.imgMovie.split('%2F').pop().split('?').shift();
+
+                    // Delete document from Firestore
+                    await deleteDoc(doc(movieCollectionRef, record.id));
+
+                    // Create a reference to the file to delete
+                    const desertRef = ref(storage, `movieImages/${filename}`);
+
+                    // Delete the file from storage
+                    await deleteObject(desertRef);
+
+                    // Update the state to trigger a re-render
+                    setUpdate((prevUpdate) => !prevUpdate);
+                } catch (error) {
+                    console.error('Error deleting movie:', error);
+                    // Handle error gracefully, show a notification, or log the error as needed
+                }
+            },
+        });
+    }
+
+    const handleEdit = async (record) => {
+        form.setFieldsValue({
+            nameMovie: record.nameMovie,
+            catergoryMovie: record.catergoryMovie,
+            durationMovie: record.durationMovie,
+            vipMovie: record.vipMovie,
+            describeMovie: record.describeMovie,
+            protagonistMovie: record.protagonistMovie,
+            linkMovie: record.linkMovie,
+        })
+        setPreviewImg(record.imgMovie);
+        setMovieEdit(record);
+        setVisible(true);
+    }
 
     const uploadProps = {
         beforeUpload: (file) => {
@@ -86,7 +133,7 @@ function Movie(props) {
             await addDoc(collection(db, 'Movie'), {
                 nameMovie: values.nameMovie,
                 imgMovie: movieImgURL,
-                catergoryMovie: Categories.name,
+                catergoryMovie: values.catergoryMovie,
                 durationMovie: values.durationMovie,
                 vipMovie: values.vipMovie,
                 describeMovie: values.describeMovie,
@@ -132,7 +179,7 @@ function Movie(props) {
                 />
                 <Column title="Name Movie" dataIndex="nameMovie" />
                 <Column title="Category" dataIndex="categoryMovie" />
-                <Column title="Duration" dataIndex="durationMovie"/>
+                <Column title="Duration" dataIndex="durationMovie" />
                 <Column title="VIP" dataIndex="vipMovie" />
                 <Column title="Describe" dataIndex="describeMovie" />
                 <Column title="Protagonist" dataIndex="protagonistMovie" />
@@ -142,8 +189,8 @@ function Movie(props) {
                     key="action"
                     render={(text, record) => (
                         <Space size="middle">
-                            <Button type="primary" onClick={() => showModal(true)}><EditOutlined /></Button>
-                            <Button style={{ backgroundColor: '#ff4d4f', borderColor: '#ff4d4f', color: "white" }} ><DeleteOutlined /></Button>
+                            <Button onClick={() => handleEdit(record)} type="primary"><EditOutlined /></Button>
+                            <Button onClick={() => handleDelete(record)} style={{ backgroundColor: '#ff4d4f', borderColor: '#ff4d4f', color: "white" }} ><DeleteOutlined /></Button>
                         </Space>
                     )}
                 />
