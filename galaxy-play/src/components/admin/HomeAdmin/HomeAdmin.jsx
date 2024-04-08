@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Breadcrumb } from 'antd';
+import { Layout, Menu, Breadcrumb, Radio } from 'antd';
 import { BrowserRouter, Route, Routes, Link } from 'react-router-dom';
 import {
     PieChartOutlined,
@@ -15,7 +15,7 @@ import Customers from '../Customers/Customers'
 
 const { Header, Content, Footer, Sider } = Layout;
 
-const HomeAdmin = () => {
+const HomeAdmin = ({currentTheme, setCurrentTheme}) => {
     const [collapsed, setCollapsed] = useState(false);
     const [selectedKey, setSelectedKey] = useState('1');
 
@@ -65,7 +65,14 @@ const HomeAdmin = () => {
                     </Menu>
                 </Sider>
                 <Layout className="site-layout">
-                    <Header className="site-layout-background" style={{ padding: 0 }} />
+                    <Header className="site-layout-background" style={{ padding: 0, textAlign:"end" }} >
+                        <Radio.Group
+                            value={currentTheme} onChange={(e) => setCurrentTheme(e.target.value)}
+                        >
+                            <Radio value={"light"}>Light</Radio>
+                            <Radio value={"dark"}>Dark</Radio>
+                        </Radio.Group>
+                    </Header>
                     <Content style={{ margin: '0 16px' }}>
                         <Breadcrumb style={{ margin: '16px 0' }}>
                             <Breadcrumb.Item>User</Breadcrumb.Item>

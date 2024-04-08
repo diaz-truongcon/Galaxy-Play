@@ -24,6 +24,7 @@ function Categories() {
     const categoriesCollectionRef = collection(db, "Categories");
     const [categories, setCategories] = useState([]);
     const [update, setUpdate] = useState(false);
+    const [categoryEdit, setCategoryEdit] = useState(null);
     
 
     useEffect(() => {
@@ -46,6 +47,7 @@ function Categories() {
         setVisible(false);
         form.resetFields(); // Reset the form fields when the modal is closed
         setPreviewImg(null);
+        setCategoryEdit(null);
     };
 
     const uploadProps = {
@@ -62,23 +64,89 @@ function Categories() {
     };
 
     const handleOk = async () => {
-        try {
-            const values = await form.validateFields();
-            const storageRef = ref(storage, `categoryImages/${uuidv4()}`);
-            await uploadBytes(storageRef, imgUpload);
-            const categoryImgURL = await getDownloadURL(storageRef);
-            await addDoc(collection(db, 'Categories'), {
-                nameCategory: values.nameCategory,
-                imgCategory: categoryImgURL,
-            });
-            setUpdate(!update);
-            message.success('Category added successfully!');
-            handleCancel();
-        } catch (error) {
-            console.error('Error adding category:', error);
-            message.error('Failed to add category. Please try again.');
-        }        
+        if(categoryEdit) {
+            try {
+                const values = await form.validateFields();
+                // If a new image is selected, upload it
+                if (imgUpload) {
+                    const storageRef = ref(storage, `categoryImages/${uuidv4()}`);
+                    await uploadBytes(storageRef, imgUpload);
+                    const categoryImgURL = await getDownloadURL(storageRef);
+                    values.imgCategory = categoryImgURL;
+                }
+                // Update the document in Firestore
+                await updateDoc(doc(categoriesCollectionRef, categoryEdit.id), values);
+                // If there is a selected image, delete the old image    
+                const oldFilename = categoryEdit.imgCategory.split('%2F').pop().split('?').shift();
+                const oldImgRef = ref(storage, `categoryImages/${oldFilename}`);
+                await deleteObject(oldImgRef);
+
+                setUpdate(!update);
+                message.success('Category updated successfully!');
+                handleCancel();
+            } catch (error) {
+                console.error('Error updating category:', error);
+                message.error('Failed to update category. Please try again.');
+            }
+        }else {
+            try {
+                const values = await form.validateFields();
+                const storageRef = ref(storage, `categoryImages/${uuidv4()}`);
+                await uploadBytes(storageRef, imgUpload);
+                const categoryImgURL = await getDownloadURL(storageRef);
+                await addDoc(collection(db, 'Categories'), {
+                    nameCategory: values.nameCategory,
+                    imgCategory: categoryImgURL,
+                });
+                setUpdate(!update);
+                message.success('Category added successfully!');
+                handleCancel();
+            } catch (error) {
+                console.error('Error adding category:', error);
+                message.error('Failed to add category. Please try again.');
+            } 
+        }
+             
     }
+    const handleDelete = async (record) => {
+        Modal.confirm({
+            title: 'Confirm Delete',
+            content: 'Are you sure you want to delete this item?',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            async onOk() {
+                try {
+                    const filename = record.imgCategory.split('%2F').pop().split('?').shift();
+
+                    // Delete document from Firestore
+                    await deleteDoc(doc(categoriesCollectionRef, record.id));
+
+                    // Create a reference to the file to delete
+                    const desertRef = ref(storage, `categoryImages/${filename}`);
+
+                    // Delete the file from storage
+                    await deleteObject(desertRef);
+
+                    // Update the state to trigger a re-render
+                    setUpdate((prevUpdate) => !prevUpdate);
+                } catch (error) {
+                    console.error('Error deleting category:', error);
+                    // Handle error gracefully, show a notification, or log the error as needed
+                }
+            },
+        });
+    };
+    const handleEdit = async (record) => {
+        console.log(record);
+        form.setFieldsValue({
+            nameCategory: record.nameCategory,
+        })
+        setPreviewImg(record.imgCategory);
+        setCategoryEdit(record);
+        setVisible(true);
+    }
+
     return (
         <>
             <Row gutter={16} align="middle">
@@ -93,7 +161,7 @@ function Categories() {
                     />
                 </Col>
                 <Col xs={24} md={6} xl={6} style={{ marginTop: "1em" }}>
-                    <Button type="primary" onClick={showModal} icon={<PlusOutlined />} style={{ width: '100%' }}>
+                    <Button type="primary" onClick={() => setVisible(true)} icon={<PlusOutlined />} style={{ width: '100%' }}>
                         Add Category
                     </Button>
                 </Col>
@@ -102,25 +170,24 @@ function Categories() {
                 <Column title="#" render={(text, record, index) => index + 1} key="index" />
                 <Column
                     title="Img Category"
-                    key="imgCategory"
                     render={(text, record) => (
-                        <Image width={50} src={record.img} />
+                        <Image width={50} src={record.imgCategory} />
                     )}
                 />
-                <Column title="Name Category" dataIndex="Name" key="nameCategory" />
+                <Column title="Name Category" dataIndex="nameCategory" />
                 <Column
                     title="Action"
                     key="action"
                     render={(text, record) => (
                         <Space size="middle">
-                            <Button type="primary" ><EditOutlined /></Button>
-                            <Button style={{ backgroundColor: '#ff4d4f', borderColor: '#ff4d4f', color: "white" }} ><DeleteOutlined /></Button>
+                            <Button onClick={() => handleEdit(record)} type="primary" ><EditOutlined /></Button>
+                            <Button onClick={() => handleDelete(record)} style={{ backgroundColor: '#ff4d4f', borderColor: '#ff4d4f', color: "white" }} ><DeleteOutlined /></Button>
                         </Space>
                     )}
                 />
             </Table>
             <Modal
-                title="Add Category"
+                title={categoryEdit ? "Edit Category" : "Add Category"}
                 visible={visible}
                 onOk={handleOk}
                 onCancel={handleCancel}

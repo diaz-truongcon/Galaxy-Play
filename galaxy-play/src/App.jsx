@@ -3,14 +3,17 @@ import './App.css';
 import HomeAdmin from './components/admin/HomeAdmin/HomeAdmin';
 import { ConfigProvider } from 'antd';
 import { darkTheme, ligthTheme } from './components/theme/Theme';
+import { useState } from 'react';
 
 function App() {
+  const [currentTheme, setCurrentTheme] = useState("light");
   return (
     <div className="App">
-      <ConfigProvider theme={
-       darkTheme
+      <ConfigProvider theme={{
+        token: currentTheme === "light" ? ligthTheme : darkTheme,
+      }
       }>
-        <HomeAdmin />
+        <HomeAdmin currentTheme={currentTheme} setCurrentTheme={setCurrentTheme} />
       </ConfigProvider>
     </div>
   );

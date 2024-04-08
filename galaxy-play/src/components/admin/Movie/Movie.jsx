@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Upload, Col, Space, Image, Row, message } from 'antd';
+import { Table, Button, Modal, Form, Input, Upload, Col, Space, Image, Row, message, Select } from 'antd';
 import { PlusOutlined, SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import {
     collection,
@@ -14,7 +14,9 @@ import { db } from "../../config/firebaseconfig";
 import { storage } from "../../config/firebaseconfig";
 import { v4 as uuidv4 } from "uuid";
 import Categories from '../Categories/Categories';
+import { vip } from './vip';
 const { Column } = Table;
+const {Option} = Select;
 
 function Movie(props) {
 
@@ -25,6 +27,8 @@ function Movie(props) {
     const movieCollectionRef = collection(db, "Movie");
     const [movie, setMovie] = useState([]);
     const [update, setUpdate] = useState(false);
+    const categoriesCollectionRef = collection(db, "Categories");
+    const [categories, setCategories] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -34,6 +38,18 @@ function Movie(props) {
                 movieData.push({ id: doc.id, ...doc.data() });
             });
             setMovie(movieData);
+        };
+        fetchData();
+    }, [update]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const querySnapshot = await getDocs(categoriesCollectionRef);
+            const categoriesData = [];
+            querySnapshot.forEach((doc) => {
+                categoriesData.push({ id: doc.id, ...doc.data() });
+            });
+            setCategories(categoriesData);
         };
         fetchData();
     }, [update]);
@@ -111,22 +127,22 @@ function Movie(props) {
                     title="Img Movie"
                     key="imgMovie"
                     render={(text, record) => (
-                        <Image width={50} src={record.img} />
+                        <Image width={50} src={record.imgMovie} />
                     )}
                 />
-                <Column title="Name Movie" dataIndex="Name" key="nameMovie" />
-                <Column title="Category" dataIndex="Category" key="categoryMovie" />
-                <Column title="Duration" dataIndex="Duration" key="durationMovie" />
-                <Column title="VIP" dataIndex="VIP" key="vipMovie" />
-                <Column title="Describe" dataIndex="Describe" key="describeMovie" />
-                <Column title="Protagonist" dataIndex="Protagonis" key="protagonistMovie" />
-                <Column title="Link Film" dataIndex="Link" key="linkMovie" />
+                <Column title="Name Movie" dataIndex="nameMovie" />
+                <Column title="Category" dataIndex="categoryMovie" />
+                <Column title="Duration" dataIndex="durationMovie"/>
+                <Column title="VIP" dataIndex="vipMovie" />
+                <Column title="Describe" dataIndex="describeMovie" />
+                <Column title="Protagonist" dataIndex="protagonistMovie" />
+                <Column title="Link Film" dataIndex="linkMovie" />
                 <Column
                     title="Action"
                     key="action"
                     render={(text, record) => (
                         <Space size="middle">
-                            <Button type="primary" ><EditOutlined /></Button>
+                            <Button type="primary" onClick={() => showModal(true)}><EditOutlined /></Button>
                             <Button style={{ backgroundColor: '#ff4d4f', borderColor: '#ff4d4f', color: "white" }} ><DeleteOutlined /></Button>
                         </Space>
                     )}
@@ -151,7 +167,13 @@ function Movie(props) {
                         name="categoryMovie"
                         rules={[{ required: true, message: 'Please choose the category of the film!' }]}
                     >
-                        <Input />
+                        <Select>
+                            {categories.map(category => (
+                                <Option key={category.id} value={category.id}>
+                                    {category.nameCategory}
+                                </Option>
+                            ))}
+                        </Select>
                     </Form.Item>
                     <Form.Item
                         label="Duration"
