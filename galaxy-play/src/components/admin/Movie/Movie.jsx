@@ -55,7 +55,7 @@ function Movie(props) {
         };
         fetchData();
     }, [update]);
-
+    console.log(categories);
     const showModal = () => {
         setVisible(true);
     };
@@ -99,7 +99,7 @@ function Movie(props) {
     const handleEdit = async (record) => {
         form.setFieldsValue({
             nameMovie: record.nameMovie,
-            catergoryMovie: record.catergoryMovie,
+            categoryId: record.categoryId,
             durationMovie: record.durationMovie,
             vipMovie: record.vipMovie,
             describeMovie: record.describeMovie,
@@ -133,7 +133,7 @@ function Movie(props) {
             await addDoc(collection(db, 'Movie'), {
                 nameMovie: values.nameMovie,
                 imgMovie: movieImgURL,
-                catergoryMovie: values.catergoryMovie,
+                categoryId: values.categoryId,
                 durationMovie: values.durationMovie,
                 vipMovie: values.vipMovie,
                 describeMovie: values.describeMovie,
@@ -178,9 +178,19 @@ function Movie(props) {
                     )}
                 />
                 <Column title="Name Movie" dataIndex="nameMovie" />
-                <Column title="Category" dataIndex="categoryMovie" />
+                <Column title="Category"
+                    render={(text, record) => {
+                        const category = categories.find(element => element.id == record.categoryId)
+                        return category ? category.nameCategory : "";
+                    }}
+                />
                 <Column title="Duration" dataIndex="durationMovie" />
-                <Column title="VIP" dataIndex="vipMovie" />
+                <Column title="VIP"
+                    render={(text, record) => {
+                        const vipMovie = vip.find(element => element.id == record.id)
+                        return vipMovie ? vipMovie.name : "";
+                    }}
+                />
                 <Column title="Describe" dataIndex="describeMovie" />
                 <Column title="Protagonist" dataIndex="protagonistMovie" />
                 <Column title="Link Film" dataIndex="linkMovie" />
@@ -196,7 +206,7 @@ function Movie(props) {
                 />
             </Table>
             <Modal
-                title="Add Movie"
+                title={movieEdit ? "Edit Movie" : "Add Movie"}
                 visible={visible}
                 onOk={handleOk}
                 onCancel={handleCancel}
@@ -211,7 +221,7 @@ function Movie(props) {
                     </Form.Item>
                     <Form.Item
                         label="Category"
-                        name="categoryMovie"
+                        name="categoryId"
                         rules={[{ required: true, message: 'Please choose the category of the film!' }]}
                     >
                         <Select>
@@ -234,7 +244,13 @@ function Movie(props) {
                         name="vipMovie"
                         rules={[{ required: true, message: 'Please choose the vip of the film!' }]}
                     >
-                        <Input />
+                        <Select>
+                            {vip.map(vipMovie => (
+                                <Option key={vipMovie.id} value={vipMovie.id}>
+                                    {vipMovie.name}
+                                </Option>
+                            ))}
+                        </Select>
                     </Form.Item>
                     <Form.Item
                         label="Describe"

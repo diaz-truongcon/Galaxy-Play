@@ -1,13 +1,13 @@
 export const vip = [
     {
         id: 1,
-        name:"Vip 0"
+        name:"Not yet"
     },
     {
         id: 2,
         name: "Di Động",
         price: 100000,
-        time: 6,
+        time: 1,
         content: ["Có quảng cáo", "Xem trên thiết bị di động", "Kho phim có sẵn với hơn 10.000 giờ nội dung đặc sắc"]
     },
     {

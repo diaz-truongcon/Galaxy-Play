@@ -4,6 +4,8 @@ import HomeAdmin from './components/admin/HomeAdmin/HomeAdmin';
 import { ConfigProvider } from 'antd';
 import { darkTheme, ligthTheme } from './components/theme/Theme';
 import { useState } from 'react';
+import Home from './components/client/Home/Home';
+
 
 function App() {
   const [currentTheme, setCurrentTheme] = useState("light");
@@ -14,6 +16,7 @@ function App() {
       }
       }>
         <HomeAdmin currentTheme={currentTheme} setCurrentTheme={setCurrentTheme} />
+        {/* <Home/> */}
       </ConfigProvider>
     </div>
   );
