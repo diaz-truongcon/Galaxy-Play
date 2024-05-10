@@ -88,7 +88,7 @@ function Categories() {
                 console.error('Error updating category:', error);
                 message.error('Failed to update category. Please try again.');
             }
-        }else {
+        } else {
             try {
                 const values = await form.validateFields();
                 const storageRef = ref(storage, `categoryImages/${uuidv4()}`);

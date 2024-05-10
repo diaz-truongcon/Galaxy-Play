@@ -1,3 +1,34 @@
 .ant-layout-header {
     background-color: white;
 }
+
+img {
+    width: 100%;
+    height: 100%;
+}
+
+.ant-image {
+    width: 100%;
+}
+
+/* Laptop */
+@media screen and (min-width:1025px) {
+    .menu-icon {
+        display: none;
+    }
+
+}
+
+/* Tablet */
+@media screen and (min-width:741px) and (max-width:1024px) {
+    .app-menu {
+        display: none;
+    }
+}
+
+/* Mobile */
+@media screen and (max-width:740px) {
+    .app-menu {
+        display: none;
+    }
+}

@@ -80,6 +80,7 @@ const HomeAdmin = ({currentTheme, setCurrentTheme}) => {
                         </Breadcrumb>
                         <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
                             <Routes>
+                                <Route path="/" element={<h1>Dashboard</h1>} />
                                 <Route path="/categories" element={<Categories />} />
                                 <Route path="/movies" element={<Movie />} />
                                 <Route path="/customers" element={<Customers />} />

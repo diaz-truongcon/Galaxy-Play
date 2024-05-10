@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Table, Button, Modal, Form, Input, Upload, Col, Space, Image, Row, message, Select } from 'antd';
 import { PlusOutlined, SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import {
@@ -13,10 +13,12 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage
 import { db } from "../../config/firebaseconfig";
 import { storage } from "../../config/firebaseconfig";
 import { v4 as uuidv4 } from "uuid";
-import Categories from '../Categories/Categories';
 import { vip } from './vip';
+import { ContextCategories } from '../../../App';
+
 const { Column } = Table;
 const { Option } = Select;
+
 
 function Movie(props) {
 
@@ -27,10 +29,8 @@ function Movie(props) {
     const movieCollectionRef = collection(db, "Movie");
     const [movie, setMovie] = useState([]);
     const [update, setUpdate] = useState(false);
-    const categoriesCollectionRef = collection(db, "Categories");
-    const [categories, setCategories] = useState([]);
     const [movieEdit, setMovieEdit] = useState(null);
-
+    const categories = useContext(ContextCategories);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -44,18 +44,6 @@ function Movie(props) {
         fetchData();
     }, [update]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const querySnapshot = await getDocs(categoriesCollectionRef);
-            const categoriesData = [];
-            querySnapshot.forEach((doc) => {
-                categoriesData.push({ id: doc.id, ...doc.data() });
-            });
-            setCategories(categoriesData);
-        };
-        fetchData();
-    }, [update]);
-    console.log(categories);
     const showModal = () => {
         setVisible(true);
     };
@@ -125,28 +113,56 @@ function Movie(props) {
     };
 
     const handleOk = async () => {
-        try {
-            const values = await form.validateFields();
-            const storageRef = ref(storage, `movieImages/${uuidv4()}`);
-            await uploadBytes(storageRef, imgUpload);
-            const movieImgURL = await getDownloadURL(storageRef);
-            await addDoc(collection(db, 'Movie'), {
-                nameMovie: values.nameMovie,
-                imgMovie: movieImgURL,
-                categoryId: values.categoryId,
-                durationMovie: values.durationMovie,
-                vipMovie: values.vipMovie,
-                describeMovie: values.describeMovie,
-                protagonistMovie: values.protagonistMovie,
-                linkMovie: values.linkMovie,
-            });
-            setUpdate(!update);
-            message.success('Movie added successfully!');
-            handleCancel();
-        } catch (error) {
-            console.error('Error adding film:', error);
-            message.error('Failed to add film. Please try again.');
+
+        if (movieEdit) {
+            try {
+                const values = await form.validateFields();
+                if (imgUpload) {
+                    const storageRef = ref(storage, `movieImages/${uuidv4()}`);
+                    await uploadBytes(storageRef, imgUpload);
+                    const movieImgURL = await getDownloadURL(storageRef);
+                    values.imgMovie = movieImgURL;
+                }
+
+                console.log(values);
+                await updateDoc(doc(movieCollectionRef, movieEdit.id), values);
+                const oldFilename = movieEdit.imgMovie.split('%2F').pop().split('?').shift();
+                const oldImgRef = ref(storage, `movieImages/${oldFilename}`);
+                await deleteObject(oldImgRef);
+
+                setUpdate(!update);
+                message.success('Movie updated successfully!');
+                handleCancel();
+            } catch (error) {
+                console.error('Error updating movie:', error);
+                message.error('Failed to update movie. Please try again.');
+            }
+        } else {
+            try {
+                const values = await form.validateFields();
+                const storageRef = ref(storage, `movieImages/${uuidv4()}`);
+                await uploadBytes(storageRef, imgUpload);
+                const movieImgURL = await getDownloadURL(storageRef);
+                await addDoc(collection(db, 'Movie'), {
+                    nameMovie: values.nameMovie,
+                    imgMovie: movieImgURL,
+                    categoryId: values.categoryId,
+                    durationMovie: values.durationMovie,
+                    vipMovie: values.vipMovie,
+                    describeMovie: values.describeMovie,
+                    protagonistMovie: values.protagonistMovie,
+                    linkMovie: values.linkMovie,
+                });
+                setUpdate(!update);
+                message.success('Movie added successfully!');
+                handleCancel();
+            } catch (error) {
+                console.error('Error adding film:', error);
+                message.error('Failed to add film. Please try again.');
+            }
         }
+
+
     }
 
     return (
@@ -187,7 +203,7 @@ function Movie(props) {
                 <Column title="Duration" dataIndex="durationMovie" />
                 <Column title="VIP"
                     render={(text, record) => {
-                        const vipMovie = vip.find(element => element.id == record.id)
+                        const vipMovie = vip.find(element => element.id == record.vipMovie)
                         return vipMovie ? vipMovie.name : "";
                     }}
                 />
@@ -274,8 +290,8 @@ function Movie(props) {
                         <Input />
                     </Form.Item>
                     <Form.Item
-                        label="Image Moive"
-                        name="imgMoive"
+                        label="Image Movie"
+                        name="imgMovie"
                         rules={[{ required: true, message: 'Please upload an image for the film!' }]}
                     >
                         <Upload {...uploadProps}>

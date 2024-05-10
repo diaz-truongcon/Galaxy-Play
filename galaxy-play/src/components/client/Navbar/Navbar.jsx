@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Image, Button, Drawer } from 'antd';
+import { Menu, Image, Button, Drawer, Modal } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import './Navbar.scss'
 
 function Navbar() {
     const [openMenu, setOpenMenu] = useState(false);
+    const [visible, setVisible] = useState(false);
+    const showModal = () => {
+        setVisible(true);
+    };
+
+    const handleLogin = () => {
+        setVisible(true);
+    };
+
     return (
         <>
             <div className='header'>
-                <MenuOutlined
+                <MenuOutlined className='menu-icon'
                     onClick={() => setOpenMenu(true)}
                 />
                 <div>
@@ -19,10 +28,10 @@ function Navbar() {
                     />
                 </div>
                 <div className="app-menu">
-                    <AppMenu />
+                    <AppMenu visible={visible} />
                 </div>
                 <div>
-                    <Button type="primary">Login</Button>
+                    <Button onClick={() => handleLogin()} className='login-btn' type="primary">Login</Button>
                 </div>
             </div>
             <Drawer
@@ -38,34 +47,43 @@ function Navbar() {
         </>
     );
 }
-function AppMenu({ isInline = false }) {
+function AppMenu({ isInline = false, visible }) {
+   
     return (
-        <Menu
-            style={{ background: "none", color: "hsla(0,0%,100%,.6)" }}
-            mode={isInline ? "inline" : "horizontal"}
-            items={[
-                {
-                    label: "Home",
-                    key: "home",
-                },
-                {
-                    label: "Movie Store",
-                    key: "movie_store",
-                },
-                {
-                    label: "Movies",
-                    key: "movies",
-                },
-                {
-                    label: "Rent Movies",
-                    key: "rent_movies",
-                },
-                {
-                    label: "Promotions",
-                    key: "promotions",
-                }
-            ]}
-        />
+        <>
+            <Menu
+                style={{ background: "none", color: "hsla(0,0%,100%,.6)" }}
+                mode={isInline ? "inline" : "horizontal"}
+                items={[
+                    {
+                        label: "Home",
+                        key: "home",
+                    },
+                    {
+                        label: "Movie Store",
+                        key: "movie_store",
+                    },
+                    {
+                        label: "Movies",
+                        key: "movies",
+                    },
+                    {
+                        label: "Rent Movies",
+                        key: "rent_movies",
+                    },
+                    {
+                        label: "Promotions",
+                        key: "promotions",
+                    }
+                ]}
+            />
+            <Modal
+                title="Login"
+                visible={visible}
+            >
+                <h1>Hello</h1>
+            </Modal>
+        </>
     );
 }
 export default Navbar;
